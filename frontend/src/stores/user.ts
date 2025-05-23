@@ -55,7 +55,6 @@ export const useUserStore = defineStore('user', () => {
       router.push({ name: 'login' });
     } catch (error) {
       console.error('Logout failed:', error);
-      throw error;
     }
   }
 

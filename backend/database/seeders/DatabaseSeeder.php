@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         User::factory()
         ->for(Role::create(['name' => 'admin']))
         ->create([
-            'name' => 'admin',
+            'first_name' => 'admin',
             'email' => 'admin@admin.com',
             'password' => 'admin',
         ]);
@@ -25,9 +25,8 @@ class DatabaseSeeder extends Seeder
         User::factory()
         ->for(Role::create(['name' => 'editor']))
         ->create([
-            'name' => 'test',
             'email' => 'test@gmail.com',
-            'password' => 'password12345',
+            'password' => 'password',
         ]);
     }
 }
