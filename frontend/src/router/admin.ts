@@ -9,12 +9,12 @@ const AdminRoutes = [
         redirect: { name: 'admin.users' }
       },
       {
-        path: 'users', 
+        path: '/users', 
         name: 'admin.users',
         component: () => import('@/views/admin/partials/ManageUsers.vue')
       },
       {
-        path: 'conferences', 
+        path: '/conferences', 
         name: 'admin.conferences',
         component: () => import('@/views/admin/partials/ManageConferences.vue')
       }

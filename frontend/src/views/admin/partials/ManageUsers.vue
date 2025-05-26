@@ -4,24 +4,19 @@ import UserModal from '@/components/UserModal.vue'
 import { onBeforeMount, ref } from 'vue'
 import { useAdminUserStore } from '@/stores/adminUser'
 
-const showModal = ref(false)
 const adminUserStore = useAdminUserStore()
 
 onBeforeMount(() => {
     adminUserStore.fetch()
     adminUserStore.fetchRoles()
 })
-
-function toggleModal() {
-    showModal.value = !showModal.value;
-}
 </script>
 
 <template>
     <div class="border-b border-gray-200 p-4 bg-white">
         <div class="flex justify-between items-center">
             <h1 class="text-xl font-semibold text-gray-800">User Management</h1>
-            <button @click="toggleModal" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+            <button @click="adminUserStore.toggleModal" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                 Add User
             </button>
         </div>
@@ -30,5 +25,5 @@ function toggleModal() {
     <UserTable />
 
     <!-- Add/Edit Modal -->
-    <UserModal :toggleModal="toggleModal" v-if="showModal" />
+    <UserModal v-if="adminUserStore.userModal" />
 </template>

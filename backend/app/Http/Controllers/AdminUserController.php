@@ -37,12 +37,13 @@ class AdminUserController extends Controller
         $data['password'] = Hash::make($tempPassword);
 
         $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
         ]);
         
-        $role = Role::where('name', $request->role)->get();
+        $role = Role::where('name', $request->role)->first();
         $user->role()->associate($role);
         $user->save();
 
@@ -63,12 +64,22 @@ class AdminUserController extends Controller
     public function update(Request $request, string $id)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users')->ignore($id)],
-            'role' => 'required|string|exists:roles',
+            'role' => 'required|string|exists:roles,name',
         ]);
 
-        return User::findOrFail($id)->update($data);
+        $role = Role::where('name', $request->role)->first();
+
+        $user = User::findOrFail($id);
+        $user->fill([
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+        ]);
+        $user->role()->associate($role);
+        $user->save();
     }
 
     /**

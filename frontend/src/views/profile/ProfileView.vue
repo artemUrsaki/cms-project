@@ -8,7 +8,7 @@ const userStore = useUserStore()
     <div>
         <h1>User Profile</h1>
     
-        <p>User Name: {{ userStore.name }}</p>
-        <p>User Email: {{ userStore.email }}</p>
+        <p>User Name: {{ userStore.user?.first_name + ' ' + userStore.user?.last_name }}</p>
+        <p>User Email: {{ userStore.user?.email }}</p>
     </div>
 </template>

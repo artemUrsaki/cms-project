@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useAdminUserStore } from '@/stores/adminUser';
+import { DESTRUCTION } from 'dns';
 
 const searchQuery = ref('');
 const adminUserStore = useAdminUserStore()
@@ -11,6 +12,16 @@ const filteredUsers = computed(() => {
         user.last_name.toLowerCase().startsWith(searchQuery.value.toLowerCase()) ||
         user.email.toLowerCase().startsWith(searchQuery.value.toLowerCase()))
 });
+
+function editUser(id: number) {
+    adminUserStore.toggleModal()
+    adminUserStore.edit(id)
+}
+
+function deleteUser(id: number) {
+    adminUserStore.destroy(id)
+    adminUserStore.fetch()
+}
 </script>
 
 <template>
@@ -35,13 +46,13 @@ const filteredUsers = computed(() => {
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    <tr v-for="user in filteredUsers" :key="user.email">
+                    <tr v-for="user in filteredUsers" :key="user.id">
                         <td class="px-6 py-4 text-sm text-gray-700">{{ user.first_name + ' ' + user.last_name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-700">{{ user.email }}</td>
                         <td class="px-6 py-4 text-sm text-gray-700">{{ user.role }}</td>
                         <td class="px-6 py-4">
-                            <button class="text-green-600 hover:text-green-800 mr-4">Edit</button>
-                            <button class="text-red-600 hover:text-red-800">Delete</button>
+                            <button @click="editUser(user.id)" class="text-green-600 hover:text-green-800 mr-4">Edit</button>
+                            <button @click="deleteUser(user.id)" class="text-red-600 hover:text-red-800">Delete</button>
                         </td>
                     </tr>
                 </tbody>
