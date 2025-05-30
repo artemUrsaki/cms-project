@@ -6,6 +6,7 @@ use App\Mail\AccountCreated;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,9 @@ class AdminUserController extends Controller
      */
     public function index()
     {
-        return User::all()->toResourceCollection();
+        return Cache::rememberForever('users', function () {
+            return User::all()->toResourceCollection();
+        });
     }
 
     /**

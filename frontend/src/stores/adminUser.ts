@@ -2,62 +2,53 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { reactive, ref } from "vue";
 import type { User, Error } from "@/types/types";
-import { useRouter } from "vue-router";
+import { useErrorStore } from "./error";
 
 export const useAdminUserStore = defineStore("adminUser", () => {
-  const router = useRouter();
+  const errorStore = useErrorStore();
 
   const users = ref([] as User[]);
   const roles = ref([] as string[]);
   const userModal = ref(false);
+  const fetching = ref(false);
+  const loadingUser = ref(false);
 
   const user = reactive({
     first_name: "",
     last_name: "",
     email: "",
-    role: "",
+    role: "editor",
   });
 
   const userId = ref(-1);
-  const errors: Error = reactive({});
-  const isError = ref(false);
-
-  async function withErrorHandling(fn: () => any) {
-    isError.value = false;
-    try {
-      return await fn();
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        return router.push({ name: "login" });
-      }
-      
-      isError.value = true;
-      throwErrors(error);
-    }
-  }
 
   async function fetch() {
-    return withErrorHandling(async () => {
+    await errorStore.withErrorHandling(async () => {
+      fetching.value = true;
       const { data } = await axios.get("api/users");
       users.value = data;
     });
+    fetching.value = false;
   }
 
   async function fetchRoles() {
-    return withErrorHandling(async () => {
+    return errorStore.withErrorHandling(async () => {
       const { data } = await axios.get("api/roles");
       roles.value = data;
     });
   }
 
   async function create() {
-    return withErrorHandling(async () => {
+    await errorStore.withErrorHandling(async () => {
+      loadingUser.value = true;
       await axios.post("api/users", user);
     });
+    loadingUser.value = false;
   }
 
   async function edit(id: number) {
-    return withErrorHandling(async () => {
+    await errorStore.withErrorHandling(async () => {
+      loadingUser.value = true;
       const { data } = await axios.get(`api/users/${id}`);
       userId.value = id;
       user.first_name = data.first_name;
@@ -65,29 +56,21 @@ export const useAdminUserStore = defineStore("adminUser", () => {
       user.email = data.email;
       user.role = data.role;
     });
+    loadingUser.value = false;
   }
 
   async function update() {
-    return withErrorHandling(async () => {
+    await errorStore.withErrorHandling(async () => {
+      loadingUser.value = true;
       await axios.put(`api/users/${userId.value}`, user);
     });
+    loadingUser.value = false;
   }
 
   async function destroy(id: number) {
-    return withErrorHandling(async () => {
+    return errorStore.withErrorHandling(async () => {
       await axios.delete(`api/users/${id}`);
     });
-  }
-
-  function throwErrors(error: any) {
-    Object.keys(errors).forEach((key) => delete errors[key]); // clear previous errors
-
-    isError.value = true;
-    if (error.response && error.response.status === 422) {
-      Object.assign(errors, error.response.data.errors);
-    } else {
-      console.log(error);
-    }
   }
 
   function toggleModal() {
@@ -98,10 +81,10 @@ export const useAdminUserStore = defineStore("adminUser", () => {
     users,
     roles,
     userModal,
+    fetching,
+    loadingUser,
     user,
     userId,
-    errors,
-    isError,
     fetch,
     fetchRoles,
     create,
@@ -109,6 +92,5 @@ export const useAdminUserStore = defineStore("adminUser", () => {
     update,
     destroy,
     toggleModal,
-    throwErrors,
   };
 });
