@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\ConferenceController;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -12,9 +13,12 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::apiResource('users', AdminUserController::class);
+
     Route::get('roles', function () {
-        return Cache::rememberForever('roles', function ()  {
+        return Cache::rememberForever('roles', function () {
             return Role::pluck('name')->all();
         });
     });
+
+    Route::apiResource('conferences', ConferenceController::class);
 });
