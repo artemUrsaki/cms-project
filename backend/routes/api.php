@@ -21,4 +21,5 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     });
 
     Route::apiResource('conferences', ConferenceController::class);
+    Route::get('/editors', [AdminUserController::class, 'editors']);
 });

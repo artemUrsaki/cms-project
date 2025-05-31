@@ -3,62 +3,87 @@
 namespace App\Http\Controllers;
 
 use App\Models\Conference;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ConferenceController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Zoznam konferencií aj s editormi.
      */
     public function index()
     {
-        return Conference::all();
+        return Conference::with('users')->get(); // <-- Toto je bod č. 3
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Uloženie novej konferencie + napojenie editorov.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            // Pridaj ďalšie polia podľa potreby
+            'name'    => 'required|string|max:255',
+            'year'    => 'required|integer',
+            'editors' => 'array', // e-maily editorov
         ]);
 
-        return Conference::create($validated);
+        $conference = Conference::create([
+            'name' => $validated['name'],
+            'year' => $validated['year'],
+        ]);
+
+        if (!empty($validated['editors'])) {
+            $userIds = User::whereIn('email', $validated['editors'])->pluck('id');
+            $conference->users()->sync($userIds);
+        }
+
+        return $conference->load('users');
     }
 
     /**
-     * Display the specified resource.
+     * Zobrazenie konkrétnej konferencie.
      */
     public function show(string $id)
     {
-        return Conference::findOrFail($id);
+        return Conference::with('users')->findOrFail($id);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Aktualizácia konferencie + editorov.
      */
     public function update(Request $request, string $id)
     {
         $conference = Conference::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            // Pridaj ďalšie polia podľa potreby
+            'name'    => 'required|string|max:255',
+            'year'    => 'required|integer',
+            'editors' => 'array',
         ]);
 
-        $conference->update($validated);
+        $conference->update([
+            'name' => $validated['name'],
+            'year' => $validated['year'],
+        ]);
 
-        return $conference;
+        if (!empty($validated['editors'])) {
+            $userIds = User::whereIn('email', $validated['editors'])->pluck('id');
+            $conference->users()->sync($userIds);
+        }
+
+        return $conference->load('users');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Zmazanie konferencie.
      */
     public function destroy(string $id)
     {
         $conference = Conference::findOrFail($id);
+
+        // 🧹 Zmaže všetky prepojenia s používateľmi z pivot tabuľky
+        $conference->users()->detach();
+
         $conference->delete();
 
         return response()->json(['message' => 'Conference deleted']);
