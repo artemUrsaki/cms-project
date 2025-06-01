@@ -8,16 +8,16 @@ class Conference extends Model
 {
     protected $fillable = [
         'year',
-        'title',
+        'name',
     ];
 
     public function subpages()
     {
-        $this->hasMany(Subpage::class);
+        return $this->hasMany(Subpage::class);
     }
 
     public function users()
     {
-        $this->belongsToMany(User::class, 'user_conference');
+        return $this->belongsToMany(User::class, 'user_conference');
     }
 }
