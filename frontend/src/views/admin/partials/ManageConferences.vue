@@ -118,10 +118,10 @@
 </template>
 
 <script setup lang="ts">
+import 'vue-multiselect/dist/vue-multiselect.min.css'
+import Multiselect from 'vue-multiselect'
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
-import Multiselect from 'vue-multiselect'
-import 'vue-multiselect/dist/vue-multiselect.min.css'
 import { useAdminConferenceStore } from '@/stores/adminConference'
 
 const conferenceStore = useAdminConferenceStore()

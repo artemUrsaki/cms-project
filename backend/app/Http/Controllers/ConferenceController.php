@@ -80,10 +80,7 @@ class ConferenceController extends Controller
     public function destroy(string $id)
     {
         $conference = Conference::findOrFail($id);
-
-        // 🧹 Zmaže všetky prepojenia s používateľmi z pivot tabuľky
-        $conference->users()->detach();
-
+        
         $conference->delete();
 
         return response()->json(['message' => 'Conference deleted']);
