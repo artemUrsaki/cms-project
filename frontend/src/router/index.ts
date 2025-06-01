@@ -22,6 +22,16 @@ const router = createRouter({
       component: () => import("@/views/profile/ProfileView.vue"),
       meta: { requiresAuth: true },
     },
+    {
+      path: "/password-request",
+      name: "password-request",
+      component: () => import("@/views/profile/PassRequestView.vue"),
+    },
+        {
+      path: "/password-reset",
+      name: "password-reset",
+      component: () => import("@/views/profile/PassResetView.vue"),
+    },
     ...AdminRoutes,
     {
       path: "/:pathMatch(.*)*",

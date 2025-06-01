@@ -70,6 +70,50 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
+  async function request_password(email: string) {
+    try {
+      console.log("Resetting password...");
+      console.log("User email:", user.value?.email);
+      await axios.post("forgot-password",
+        {
+          email: email
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Request password failed:", error);
+    }
+  }
+
+  async function reset_password(token: string, email: string, password: string, conf_password: string) {
+    try {
+      console.log(password);
+      console.log(conf_password);
+      console.log("Resetting password with token:", token);
+      await axios.post("reset-password",
+        {
+          token: token,
+          email: email,
+          password: password,
+          password_confirmation: conf_password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Reset password failed:", error);
+    }
+  }
+
   return {
     user,
     isLoggedIn,
@@ -79,5 +123,7 @@ export const useUserStore = defineStore("user", () => {
     checkAuth,
     login,
     logout,
+    request_password,
+    reset_password,
   };
 });
