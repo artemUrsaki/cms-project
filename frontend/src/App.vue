@@ -19,7 +19,7 @@ onBeforeMount(async () => {
         <h1>Animal Science Days</h1>
     </div>
 
-    <LoadingModal v-if="userStore.loading" />
+    <LoadingModal v-else-if="userStore.loading" />
 
     <div v-if="!init" class="flex flex-col min-h-screen bg-gray-100">
         <header class="fixed w-full top-0 left-0 bg-white shadow-sm z-50">

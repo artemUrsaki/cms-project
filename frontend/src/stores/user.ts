@@ -2,16 +2,19 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 import { ref, computed } from "vue";
-import type { User } from '@/types/types'
+import type { User } from "@/types/types";
+import { useErrorStore } from "./error";
 
 export const useUserStore = defineStore("user", () => {
   const router = useRouter();
   const route = useRoute();
+  const errorStore = useErrorStore();
 
   const user = ref<null | User>(null);
 
   const isLoggedIn = ref(false);
   const loading = ref(false);
+  const loggingUser = ref(false);
 
   // Computed
   const isAdmin = computed(() => user.value?.role === "admin");
@@ -45,7 +48,8 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function login(userObj: { email: string; password: string }) {
-    try {
+    await errorStore.withErrorHandling(async () => {
+      loggingUser.value = true;
       await axios.get("sanctum/csrf-cookie");
       const { data } = await axios.post("login", userObj);
 
@@ -53,9 +57,8 @@ export const useUserStore = defineStore("user", () => {
       isLoggedIn.value = true;
 
       router.push((route.query?.redirect as string) ?? { name: "profile" });
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
+    });
+    loggingUser.value = false;
   }
 
   async function logout() {
@@ -119,6 +122,7 @@ export const useUserStore = defineStore("user", () => {
     isLoggedIn,
     isAdmin,
     loading,
+    loggingUser,
     initAuth,
     checkAuth,
     login,
