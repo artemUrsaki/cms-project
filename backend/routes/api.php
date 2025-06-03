@@ -1,30 +1,32 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ConferenceController;
 use App\Models\Role;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user()->toResource();
-})->middleware('auth:sanctum');
+Route::post('/login', [LoginController::class, 'login']);
+
+Route::get('/ping', fn () => 'pong');
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::get('/roles', [AdminUserController::class, 'roles']);
-    Route::apiResource('users', AdminUserController::class);
 
-<<<<<<< Updated upstream
-    Route::get('roles', function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user()->toResource();
+    });
+
+    Route::get('/roles', function () {
         return Cache::rememberForever('roles', function () {
             return Role::pluck('name')->all();
         });
     });
 
-=======
-    Route::get('/editors', [ConferenceController::class, 'editors']);
->>>>>>> Stashed changes
+    Route::get('/conference-editors', [ConferenceController::class, 'editors']);
+    Route::get('/admin-editors', [AdminUserController::class, 'editors']);
+
+    Route::apiResource('users', AdminUserController::class);
     Route::apiResource('conferences', ConferenceController::class);
-    Route::get('/editors', [AdminUserController::class, 'editors']);
 });
