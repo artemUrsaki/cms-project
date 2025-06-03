@@ -13,7 +13,7 @@ export const useErrorStore = defineStore("error", () => {
   async function withErrorHandling(fn: () => any) {
     isError.value = false;
     try {
-      return await fn();
+      await fn();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         return router.push({ name: "login" });
