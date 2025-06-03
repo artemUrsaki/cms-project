@@ -56,7 +56,7 @@ export const useUserStore = defineStore("user", () => {
       user.value = data;
       isLoggedIn.value = true;
 
-      router.push((route.query?.redirect as string) ?? { name: "profile" });
+      router.push((route.query?.redirect as string) ?? { name: "profile-details" });
     });
     loggingUser.value = false;
   }

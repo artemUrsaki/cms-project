@@ -18,16 +18,32 @@ const router = createRouter({
     },
     {
       path: "/profile",
-      name: "profile",
       component: () => import("@/views/profile/ProfileView.vue"),
       meta: { requiresAuth: true },
+      children: [
+        {
+          path: '',
+          redirect: { name: 'profile-details' }
+        },
+        {
+          path: '/details',
+          name: 'profile-details',
+          component: () => import("@/views/profile/partials/ProfileDetails.vue"),
+
+        },
+        {
+          path: '/settings',
+          name: 'profile-settings',
+          component: () => import("@/views/profile/partials/ProfileSettings.vue"),
+        }
+      ],
     },
     {
       path: "/password-request",
       name: "password-request",
       component: () => import("@/views/profile/PassRequestView.vue"),
     },
-        {
+    {
       path: "/password-reset",
       name: "password-reset",
       component: () => import("@/views/profile/PassResetView.vue"),
@@ -42,10 +58,10 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const userStore = useUserStore();
-  
+
   if (to.meta.requiresAuth) {
     await userStore.checkAuth();
-    
+
     if (!userStore.isLoggedIn) {
       return {
         name: "login",
