@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { reactive, ref } from "vue";
-import type { User, Error } from "@/types/types";
+import type { User } from "@/types/types";
 import { useErrorStore } from "./error";
 
 export const useAdminUserStore = defineStore("adminUser", () => {
@@ -13,67 +13,54 @@ export const useAdminUserStore = defineStore("adminUser", () => {
   const fetching = ref(false);
   const loadingUser = ref(false);
 
-  const user = reactive({
-    first_name: "",
-    last_name: "",
-    email: "",
-    role: "editor",
-  });
-
-  const userId = ref(-1);
+  const editingUser = ref<User | null>(null);
 
   async function fetch() {
-    await errorStore.withErrorHandling(async () => {
+    errorStore.withErrorHandling(async () => {
       fetching.value = true;
-      const { data } = await axios.get("api/users");
-      users.value = data;
+      const res = await axios.get("api/users");
+      users.value = res.data;
     });
     fetching.value = false;
   }
 
   async function fetchRoles() {
     return errorStore.withErrorHandling(async () => {
-      const { data } = await axios.get("api/roles");
-      roles.value = data;
+      const res = await axios.get("api/roles");
+      roles.value = res.data;
     });
   }
 
-  async function create() {
+  async function create(user: any) {
     await errorStore.withErrorHandling(async () => {
       loadingUser.value = true;
-      await axios.post("api/users", user);
-    });
-    loadingUser.value = false;
-  }
-
-  async function edit(id: number) {
-    await errorStore.withErrorHandling(async () => {
-      loadingUser.value = true;
-      const { data } = await axios.get(`api/users/${id}`);
-      userId.value = id;
-      user.first_name = data.first_name;
-      user.last_name = data.last_name;
-      user.email = data.email;
-      user.role = data.role;
+      const res = await axios.post("api/users", user);
+      users.value.push(res.data);
     });
     loadingUser.value = false;
   }
 
-  async function update() {
+  async function update(id: number, user: any) {
     await errorStore.withErrorHandling(async () => {
       loadingUser.value = true;
-      await axios.put(`api/users/${userId.value}`, user);
+      const res = await axios.put(`api/users/${id}`, user);
+      const index = users.value.findIndex(u => u.id === id);
+      if (index !== -1) {
+        users.value[index] = res.data;
+      }
     });
     loadingUser.value = false;
   }
 
   async function destroy(id: number) {
     return errorStore.withErrorHandling(async () => {
-      await axios.delete(`api/users/${id}`);
+      axios.delete(`api/users/${id}`);
+      users.value = users.value.filter(u => u.id !== id);
     });
   }
 
-  function toggleModal() {
+  function toggleModal(user: User | null = null) {
+    editingUser.value = user;
     userModal.value = !userModal.value;
   }
 
@@ -83,12 +70,10 @@ export const useAdminUserStore = defineStore("adminUser", () => {
     userModal,
     fetching,
     loadingUser,
-    user,
-    userId,
+    editingUser,
     fetch,
     fetchRoles,
     create,
-    edit,
     update,
     destroy,
     toggleModal,

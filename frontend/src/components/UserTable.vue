@@ -1,35 +1,30 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useAdminUserStore } from '@/stores/adminUser';
 import LoadingModal from './LoadingModal.vue';
+import type { User } from '@/types/types';
+
+const props = defineProps<{
+    users: User[];
+    fetchingUsers: boolean;
+}>();
+const emit = defineEmits(['edit', 'delete']);
 
 const searchQuery = ref('');
-const adminUserStore = useAdminUserStore()
 
 const filteredUsers = computed(() => {
-    return adminUserStore.users.filter(user =>
+    return props.users.filter(user =>
         user.first_name.toLowerCase().startsWith(searchQuery.value.toLowerCase()) ||
         user.last_name.toLowerCase().startsWith(searchQuery.value.toLowerCase()) ||
         user.email.toLowerCase().startsWith(searchQuery.value.toLowerCase()))
 });
-
-function editUser(id: number) {
-    adminUserStore.toggleModal()
-    adminUserStore.edit(id)
-}
-
-function deleteUser(id: number) {
-    adminUserStore.destroy(id)
-    adminUserStore.fetch()
-}
 </script>
 
 <template>
     <div class="p-6">
         <div class="bg-white rounded-lg border border-[#566d8b]/20 relative min-h-40">
-            <LoadingModal class="rounded-lg" v-if="adminUserStore.fetching" />
+            <LoadingModal class="rounded-lg" v-if="props.fetchingUsers" />
 
-            <div v-else-if="adminUserStore.users.length > 0">
+            <div v-else-if="props.users.length > 0">
                 <div class="p-4 border-b border-[#566d8b]/20">
                     <input
                         type="text"
@@ -60,8 +55,8 @@ function deleteUser(id: number) {
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <button @click="editUser(user.id)" class="text-[#fb6c11] hover:text-[#566d8b] mr-4">Edit</button>
-                                <button @click="deleteUser(user.id)" class="text-red-600 hover:text-red-800">Delete</button>
+                                <button @click="$emit('edit', user)" class="text-[#fb6c11] hover:text-[#566d8b] mr-4">Edit</button>
+                                <button @click="$emit('delete', user.id)" class="text-red-600 hover:text-red-800">Delete</button>
                             </td>
                         </tr>
                     </tbody>
