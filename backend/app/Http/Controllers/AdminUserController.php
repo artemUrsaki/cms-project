@@ -90,18 +90,19 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Return list of all user emails for editor selection.
-     */
-    public function editors()
-    {
-        return User::pluck('email');
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
         return User::findOrFail($id)->delete();
+    }
+
+    /**
+     * Get the roles.
+     */
+    public function roles() {
+        return Cache::rememberForever('roles', function () {
+            return Role::pluck('name')->all();
+        });
     }
 }

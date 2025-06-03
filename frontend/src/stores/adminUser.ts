@@ -7,8 +7,8 @@ import { useErrorStore } from "./error";
 export const useAdminUserStore = defineStore("adminUser", () => {
   const errorStore = useErrorStore();
 
-  const users = ref([] as User[]);
-  const roles = ref([] as string[]);
+  const users = ref<User[]>([]);
+  const roles = ref<string[]>([]);
   const userModal = ref(false);
   const fetching = ref(false);
   const loadingUser = ref(false);

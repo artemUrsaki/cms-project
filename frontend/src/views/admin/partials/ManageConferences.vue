@@ -1,3 +1,54 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, reactive } from 'vue'
+import axios from 'axios'
+import { useAdminConferenceStore } from '@/stores/adminConference'
+import ConferenceModal from '@/components/ConferenceModal.vue'
+
+const conferenceStore = useAdminConferenceStore()
+
+const searchQuery = ref('')
+const formData = reactive({
+  name: '',
+  year: new Date().getFullYear(),
+  editors: [] as string[],
+})
+
+const filteredConferences = computed(() => {
+  return conferenceStore.conferences.filter((conf) =>
+    conf.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    conf.year.toString().includes(searchQuery.value)
+  )
+})
+
+onMounted(async () => {
+  await conferenceStore.fetch()
+  await conferenceStore.fetchEditors()
+})
+
+function openAddModal() {
+  formData.name = ''
+  formData.year = new Date().getFullYear()
+  formData.editors = []
+  conferenceStore.toggleModal()
+}
+
+function openEditModal(conference: any) {
+  formData.name = conference.name
+  formData.year = conference.year
+  formData.editors = [...conference.editors]
+  conferenceStore.toggleModal(conference)
+}
+
+async function saveConference() {
+  if (conferenceStore.editingConference) {
+    await conferenceStore.update(conferenceStore.editingConference.id, { ...formData })
+  } else {
+    await conferenceStore.create({ ...formData })
+  }
+  conferenceStore.toggleModal()
+}
+</script>
+
 <template>
   <div class="border-b border-[#566d8b]/20 p-4 bg-white">
     <div class="flex justify-between items-center">
@@ -58,7 +109,7 @@
               </button>
               <button
                 class="text-red-600 hover:text-red-800"
-                @click="deleteConference(conference.id)"
+                @click="conferenceStore.remove(conference.id)"
               >
                 Delete
               </button>
@@ -69,8 +120,9 @@
     </div>
   </div>
 
-  <div
+  <ConferenceModal
     v-if="conferenceStore.conferenceModal"
+<<<<<<< Updated upstream
     class="fixed inset-0 bg-[#566d8b]/10 flex items-center justify-center"
   >
     <div class="bg-white p-6 rounded-lg w-96 shadow-lg">
@@ -188,3 +240,9 @@ function deleteConference(id: number) {
   conferenceStore.remove(id)
 }
 </script>
+=======
+    :conferenceStore="conferenceStore"
+    :formData="formData"
+  />
+</template>
+>>>>>>> Stashed changes

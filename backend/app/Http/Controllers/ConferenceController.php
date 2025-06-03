@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Conference;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ConferenceController extends Controller
 {
@@ -87,5 +88,15 @@ class ConferenceController extends Controller
         $conference->delete();
 
         return response()->json(['message' => 'Conference deleted']);
+    }
+
+    /**
+     * Return list of all user emails for editor selection.
+     */
+    public function editors()
+    {
+        return Cache::rememberForever('editors', function () {
+            return User::pluck('email');
+        });
     }
 }

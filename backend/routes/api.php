@@ -12,14 +12,19 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/roles', [AdminUserController::class, 'roles']);
     Route::apiResource('users', AdminUserController::class);
 
+<<<<<<< Updated upstream
     Route::get('roles', function () {
         return Cache::rememberForever('roles', function () {
             return Role::pluck('name')->all();
         });
     });
 
+=======
+    Route::get('/editors', [ConferenceController::class, 'editors']);
+>>>>>>> Stashed changes
     Route::apiResource('conferences', ConferenceController::class);
     Route::get('/editors', [AdminUserController::class, 'editors']);
 });
