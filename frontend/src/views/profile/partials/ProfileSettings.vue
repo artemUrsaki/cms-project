@@ -9,7 +9,6 @@ import ProfilePassword from '@/components/ProfilePassword.vue';
         <h1 class="text-3xl font-bold mb-6 text-[#566d8b]">Account Settings</h1>
 
         <ProfileEdit />
-        
         <ProfilePassword />
         
     </div>
