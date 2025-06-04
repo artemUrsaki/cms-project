@@ -9,10 +9,10 @@ import { RouterView } from 'vue-router';
         <div class="bg-[#566d8b]/20 w-64 p-4 border-r border-[#566d8b]/20">
             <h2 class="text-lg font-semibold mb-6 text-[#566d8b]">Navigation</h2>
             <nav class="space-y-2">
-                <AdminNavLink routeName="users" class="hover:text-[#fb6c11] text-[#566d8b]">
+                <AdminNavLink routeName="admin.users" class="hover:text-[#fb6c11] text-[#566d8b]">
                     Users
                 </AdminNavLink>
-                <AdminNavLink routeName="conferences" class="hover:text-[#fb6c11] text-[#566d8b]">
+                <AdminNavLink routeName="admin.conferences" class="hover:text-[#fb6c11] text-[#566d8b]">
                     Conferences
                 </AdminNavLink>
             </nav>
@@ -26,3 +26,5 @@ import { RouterView } from 'vue-router';
         </div>
     </div>
 </template>
+
+<!-- name email change pass a edit data -->
