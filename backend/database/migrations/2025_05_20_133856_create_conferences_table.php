@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('conferences', function (Blueprint $table) {
             $table->id();
-            $table->unsignedSmallInteger('year')->unique();
+            $table->unsignedSmallInteger('year');
             $table->string('name')->nullable();
             $table->timestamps();
         });
