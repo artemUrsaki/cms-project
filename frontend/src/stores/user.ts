@@ -1,14 +1,12 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import axiosInstance from "@/axios";
 import { useRoute, useRouter } from "vue-router";
 import { ref, computed } from "vue";
 import type { User } from "@/types/types";
-import { useErrorStore } from "./error";
 
 export const useUserStore = defineStore("user", () => {
   const router = useRouter();
   const route = useRoute();
-  const errorStore = useErrorStore();
 
   const user = ref<null | User>(null);
 
@@ -41,61 +39,50 @@ export const useUserStore = defineStore("user", () => {
   // Actions
   async function initAuth() {
     try {
-      const { data } = await axios.get("/api/user");
-
+      const res = await axiosInstance.get("/user");
+      user.value = res.data;
       isLoggedIn.value = true;
-      user.value = data;
-
+      
       // Initialize edited fields when user data is loaded
       editedFirstName.value = user.value?.first_name || '';
       editedLastName.value = user.value?.last_name || '';
       editedEmail.value = user.value?.email || '';
 
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }
 
   async function checkAuth() {
     try {
       loading.value = true;
-      await axios.get("/api/user");
+      await axiosInstance.get("/user");
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        isLoggedIn.value = false;
-        user.value = null;
-      } else {
         console.log(error);
-      }
     } finally {
       loading.value = false;
     }
   }
 
   async function login(userObj: { email: string; password: string }) {
-    await errorStore.withErrorHandling(async () => {
-      loggingUser.value = true;
-      await axios.get("sanctum/csrf-cookie");
-      const { data } = await axios.post("login", userObj);
-
-      user.value = data;
-      isLoggedIn.value = true;
-
-      // Initialize edited fields on login
-      editedFirstName.value = user.value?.first_name || '';
-      editedLastName.value = user.value?.last_name || '';
-      editedEmail.value = user.value?.email || '';
-
-      router.push((route.query?.redirect as string) ?? { name: "profile-details" });
+    loggingUser.value = true;
+    await axiosInstance.get("/sanctum/csrf-cookie", {
+      baseURL: 'http://localhost:8000',
     });
+    const res = await axiosInstance.post("login", userObj);
+
+    user.value = res.data;
+    isLoggedIn.value = true;
+    // Initialize edited fields on login
+    editedFirstName.value = user.value?.first_name || '';
+    editedLastName.value = user.value?.last_name || '';
+    editedEmail.value = user.value?.email || '';
+
+    router.push((route.query?.redirect as string) ?? { name: "profile-details" });
     loggingUser.value = false;
   }
 
   async function logout() {
     try {
       await axios.post("logout");
-      isLoggedIn.value = false;
-      user.value = null;
 
       // Clear edited fields on logout
       editedFirstName.value = '';
@@ -109,7 +96,7 @@ export const useUserStore = defineStore("user", () => {
       passwordMessage.value = '';
       passwordError.value = '';
 
-
+      cleanAuth();
       router.push({ name: "login" });
     } catch (error) {
       console.error("Logout failed:", error);
@@ -158,6 +145,11 @@ export const useUserStore = defineStore("user", () => {
     } catch (error) {
       console.error("Reset password failed:", error);
     }
+  }
+  
+  function cleanAuth() {
+    isLoggedIn.value = false;
+    user.value = null;
   }
 
   // --- New Actions for Profile Details ---
@@ -255,5 +247,6 @@ export const useUserStore = defineStore("user", () => {
     passwordMessage,
     passwordError,
     savePasswordChanges,
+    cleanAuth
   };
 });

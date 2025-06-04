@@ -55,6 +55,8 @@ class AdminUserController extends Controller
             $user->last_name,
             $tempPassword
         ));
+
+        return $user->toResource();
     }
 
     /**
@@ -87,14 +89,8 @@ class AdminUserController extends Controller
         ]);
         $user->role()->associate($role);
         $user->save();
-    }
 
-    /**
-     * Return list of all user emails for editor selection.
-     */
-    public function editors()
-    {
-        return User::pluck('email');
+        return $user->toResource();
     }
 
     /**
@@ -103,5 +99,14 @@ class AdminUserController extends Controller
     public function destroy(string $id)
     {
         return User::findOrFail($id)->delete();
+    }
+
+    /**
+     * Get the roles.
+     */
+    public function roles() {
+        return Cache::rememberForever('roles', function () {
+            return Role::pluck('name');
+        });
     }
 }

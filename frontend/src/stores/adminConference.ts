@@ -1,59 +1,98 @@
-// src/stores/adminConference.ts
-import { defineStore } from 'pinia'
-import axios from 'axios'
+import { defineStore } from "pinia"
+import { ref } from "vue"
+import axiosInstance from "@/axios"
+import type { Conference } from "@/types/types"
 
-export const useAdminConferenceStore = defineStore('adminConference', {
-  state: () => ({
-    conferences: [] as any[],
-    loading: false,
-    error: null as string | null,
-    conferenceModal: false,
-    editingConference: null as any | null,
-  }),
+interface ConferenceInput {
+  name: string
+  year: number
+  editors: string[]
+}
 
-  actions: {
-    async fetch() {
-      this.loading = true
-      try {
-        const res = await axios.get('/api/conferences')
-        this.conferences = res.data.map((conf: any) => ({
-          ...conf,
-          editors: conf.users.map((user: any) => user.email),
-        }))
-      } catch (err: any) {
-        this.error = err.message
-      } finally {
-        this.loading = false
-      }
-    },
+export const useAdminConferenceStore = defineStore("adminConference", () => {
+  const conferences = ref<Conference[]>([])
+  const availableEditors = ref<string[]>([])
+  const fetching = ref(false)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+  const conferenceModal = ref(false)
+  const editingConference = ref<Conference | null>(null)
 
-    async create(data: any) {
-      const res = await axios.post('/api/conferences', data)
-      this.conferences.push({
-        ...res.data,
-        editors: res.data.users.map((user: any) => user.email),
-      })
-    },
+  async function fetch() {
+    fetching.value = true
+    try {
+      const res = await axiosInstance.get("/conferences")
+      conferences.value = res.data
+    } catch (err: any) {
+      error.value = err.message
+    } finally {
+      fetching.value = false
+    }
+  }
 
-    async update(id: number, data: any) {
-      const res = await axios.put(`/api/conferences/${id}`, data)
-      const index = this.conferences.findIndex(c => c.id === id)
+  async function fetchEditors() {
+    try {
+      const res = await axiosInstance.get("/conference-editors")
+      availableEditors.value = res.data
+    } catch (err: any) {
+      error.value = err.message
+    }
+  }
+
+  async function create(data: ConferenceInput) {
+    loading.value = true
+    try {
+      const res = await axiosInstance.post("/conferences", data)
+      conferences.value.push(res.data)
+    } catch (err: any) {
+      error.value = err.message
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function update(id: number, data: ConferenceInput) {
+    loading.value = true
+    try {
+      const res = await axiosInstance.put(`/conferences/${id}`, data)
+      const index = conferences.value.findIndex((c) => c.id === id)
       if (index !== -1) {
-        this.conferences[index] = {
-          ...res.data,
-          editors: res.data.users.map((user: any) => user.email),
-        }
+        conferences.value[index] = res.data
       }
-    },
+    } catch (err: any) {
+      error.value = err.message
+    } finally {
+      loading.value = false
+    }
+  }
 
-    async remove(id: number) {
-      await axios.delete(`/api/conferences/${id}`)
-      this.conferences = this.conferences.filter(c => c.id !== id)
-    },
+  async function remove(id: number) {
+    try {
+      axiosInstance.delete(`/conferences/${id}`)
+      conferences.value = conferences.value.filter((c) => c.id !== id)
+    } catch (err: any) {
+      error.value = err.message
+    }
+  }
 
-    toggleModal(conference: any | null = null) {
-      this.conferenceModal = !this.conferenceModal
-      this.editingConference = conference
-    },
-  },
+  function toggleModal(conference: Conference | null = null) {
+    editingConference.value = conference
+    conferenceModal.value = !conferenceModal.value
+  }
+
+  return {
+    conferences,
+    availableEditors,
+    loading,
+    fetching,
+    error,
+    conferenceModal,
+    editingConference,
+    fetch,
+    fetchEditors,
+    create,
+    update,
+    remove,
+    toggleModal,
+  }
 })

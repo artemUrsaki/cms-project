@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Conference;
 use App\Models\User;
 use App\Observers\UserObserver;
+use App\Observers\ConferenceObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -30,5 +32,6 @@ class AppServiceProvider extends ServiceProvider
         });
         JsonResource::withoutWrapping();
         User::observe(UserObserver::class);
+        Conference::observe(ConferenceObserver::class);
     }
 }

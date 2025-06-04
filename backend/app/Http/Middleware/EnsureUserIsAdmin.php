@@ -16,7 +16,9 @@ class EnsureUserIsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user()->role->name != 'admin') {
-            abort(403, 'Unauthorized action.');
+            return response()->json( [
+                'message' => 'Unauthorized action. User is not admin'
+            ], 403);
         }
 
         return $next($request);

@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
@@ -14,8 +13,7 @@ return [
     | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     |
     */
-
-    'paths' => ['login', 'logout', 'api/*', 'sanctum/csrf-cookie', 'reset-password', 'forgot-password', "user/*"],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
@@ -30,5 +28,4 @@ return [
     'max_age' => 0,
 
     'supports_credentials' => true,
-
 ];

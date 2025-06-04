@@ -13,6 +13,7 @@ class UserObserver
     public function created(User $user): void
     {
         Cache::forget('users');
+        Cache::forget('editors');
     }
 
     /**
@@ -21,6 +22,10 @@ class UserObserver
     public function updated(User $user): void
     {
         Cache::forget('users');
+        
+        if ($user->wasChanged('email')) {
+            Cache::forget('editors');
+        }
     }
 
     /**
@@ -29,6 +34,7 @@ class UserObserver
     public function deleted(User $user): void
     {
         Cache::forget('users');
+        Cache::forget('editors');
     }
 
     /**
