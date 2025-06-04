@@ -18,23 +18,23 @@ const router = createRouter({
     },
     {
       path: "/profile",
-      component: () => import("@/views/profile/ProfileView.vue"),
+      component: () => import("@/layouts/ProfileLayout.vue"),
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
-          redirect: { name: 'profile-details' }
+          redirect: { name: 'profile.details' }
         },
         {
           path: '/details',
-          name: 'profile-details',
-          component: () => import("@/views/profile/partials/ProfileDetails.vue"),
+          name: 'profile.details',
+          component: () => import("@/views/profile/ProfileDetails.vue"),
 
         },
         {
           path: '/settings',
-          name: 'profile-settings',
-          component: () => import("@/views/profile/partials/ProfileSettings.vue"),
+          name: 'profile.settings',
+          component: () => import("@/views/profile/ProfileSettings.vue"),
         }
       ],
     },

@@ -1,7 +1,7 @@
 const AdminRoutes = [
   {
     path: '/admin',
-    component: () => import('@/views/admin/AdminPanel.vue'),
+    component: () => import('@/layouts/AdminLayout.vue'),
     meta: { requiresAuth: true, isAdmin: true },
     children: [
       {
@@ -11,12 +11,12 @@ const AdminRoutes = [
       {
         path: '/users', 
         name: 'admin.users',
-        component: () => import('@/views/admin/partials/ManageUsers.vue')
+        component: () => import('@/views/admin/ManageUsers.vue')
       },
       {
         path: '/conferences', 
         name: 'admin.conferences',
-        component: () => import('@/views/admin/partials/ManageConferences.vue')
+        component: () => import('@/views/admin/ManageConferences.vue')
       }
     ]
   }
