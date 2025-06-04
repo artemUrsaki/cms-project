@@ -7,7 +7,6 @@ const props = defineProps<{
     users: User[];
     fetchingUsers: boolean;
 }>();
-const emit = defineEmits(['edit', 'delete']);
 
 const searchQuery = ref('');
 

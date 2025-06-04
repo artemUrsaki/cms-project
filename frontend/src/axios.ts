@@ -12,6 +12,10 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(response => {
+    const errorStore = useErrorStore()
+    if (errorStore.errors) {
+        errorStore.clearErrors();
+    }
     return response;
 },
 async error => {

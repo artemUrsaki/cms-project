@@ -66,7 +66,7 @@ export const useUserStore = defineStore("user", () => {
     try {
       console.log("Resetting password...");
       console.log("User email:", user.value?.email);
-      await axios.post("forgot-password",
+      await axiosInstance.post("forgot-password",
         {
           email: email
         },
@@ -87,7 +87,7 @@ export const useUserStore = defineStore("user", () => {
       console.log(password);
       console.log(conf_password);
       console.log("Resetting password with token:", token);
-      await axios.post("reset-password",
+      await axiosInstance.post("reset-password",
         {
           token: token,
           email: email,

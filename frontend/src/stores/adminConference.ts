@@ -1,20 +1,13 @@
 import { defineStore } from "pinia"
 import { ref } from "vue"
 import axiosInstance from "@/axios"
-import type { Conference } from "@/types/types"
-
-interface ConferenceInput {
-  name: string
-  year: number
-  editors: string[]
-}
+import type { Conference, ConferenceInput } from "@/types/types"
 
 export const useAdminConferenceStore = defineStore("adminConference", () => {
   const conferences = ref<Conference[]>([])
   const availableEditors = ref<string[]>([])
   const fetching = ref(false)
   const loading = ref(false)
-  const error = ref<string | null>(null)
   const conferenceModal = ref(false)
   const editingConference = ref<Conference | null>(null)
 
@@ -23,8 +16,7 @@ export const useAdminConferenceStore = defineStore("adminConference", () => {
     try {
       const res = await axiosInstance.get("/conferences")
       conferences.value = res.data
-    } catch (err: any) {
-      error.value = err.message
+    } catch (err) {
     } finally {
       fetching.value = false
     }
@@ -34,8 +26,7 @@ export const useAdminConferenceStore = defineStore("adminConference", () => {
     try {
       const res = await axiosInstance.get("/conference-editors")
       availableEditors.value = res.data
-    } catch (err: any) {
-      error.value = err.message
+    } catch (err) {
     }
   }
 
@@ -44,8 +35,7 @@ export const useAdminConferenceStore = defineStore("adminConference", () => {
     try {
       const res = await axiosInstance.post("/conferences", data)
       conferences.value.push(res.data)
-    } catch (err: any) {
-      error.value = err.message
+    } catch (err) {
     } finally {
       loading.value = false
     }
@@ -59,8 +49,7 @@ export const useAdminConferenceStore = defineStore("adminConference", () => {
       if (index !== -1) {
         conferences.value[index] = res.data
       }
-    } catch (err: any) {
-      error.value = err.message
+    } catch (err) {
     } finally {
       loading.value = false
     }
@@ -70,8 +59,7 @@ export const useAdminConferenceStore = defineStore("adminConference", () => {
     try {
       axiosInstance.delete(`/conferences/${id}`)
       conferences.value = conferences.value.filter((c) => c.id !== id)
-    } catch (err: any) {
-      error.value = err.message
+    } catch (err) {
     }
   }
 
@@ -85,7 +73,6 @@ export const useAdminConferenceStore = defineStore("adminConference", () => {
     availableEditors,
     loading,
     fetching,
-    error,
     conferenceModal,
     editingConference,
     fetch,

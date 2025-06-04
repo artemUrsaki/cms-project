@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import axiosInstance from "@/axios";
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import type { User } from "@/types/types";
+import type { UserInput } from "@/types/types";
 
 export const useAdminUserStore = defineStore("adminUser", () => {
   const users = ref<User[]>([]);
@@ -15,8 +16,8 @@ export const useAdminUserStore = defineStore("adminUser", () => {
   async function fetch() {
     fetching.value = true;
     try {
-      const { data } = await axiosInstance.get("/users");
-      users.value = data;
+      const res = await axiosInstance.get("/users");
+      users.value = res.data;
     } catch (e) {
     } finally {
       fetching.value = false;
@@ -25,28 +26,33 @@ export const useAdminUserStore = defineStore("adminUser", () => {
 
   async function fetchRoles() {
     try {
-      const { data } = await axiosInstance.get("/roles");
-      roles.value = data;
+      const res = await axiosInstance.get("/roles");
+      roles.value = res.data;
     } catch (e) {
     } finally {
       loadingUser.value = false;
     }
   }
 
-  async function create() {
+  async function create(user: UserInput) {
     loadingUser.value = true;
     try {
-      await axiosInstance.post("/users", user);
+      const res = await axiosInstance.post("/users", user);
+      users.value.push(res.data);
     } catch (e) {
     } finally {
       loadingUser.value = false;
     }
   }
 
-  async function update() {
+  async function update(id: number, user: UserInput) {
     loadingUser.value = true;
     try {
-      await axiosInstance.put(`/users/${userId.value}`, user);
+      const res = await axiosInstance.put(`/users/${id}`, user)
+      const index = users.value.findIndex(u => u.id === id)
+      if (index !== -1) {
+        users.value[index] = res.data
+      }
     } catch (e) {
     } finally {
       loadingUser.value = false;
@@ -56,7 +62,8 @@ export const useAdminUserStore = defineStore("adminUser", () => {
   async function destroy(id: number) {
     loadingUser.value = true;
     try {
-      await axiosInstance.delete(`/users/${id}`);
+      axiosInstance.delete(`/users/${id}`);
+      users.value = users.value.filter(u => u.id !== id);
     } catch (e) {
     } finally {
       loadingUser.value = false;

@@ -1,10 +1,12 @@
 export interface User {
-    id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    role: string;
+    id: number
+    first_name: string
+    last_name: string
+    email: string
+    role: string
 }
+
+export type UserInput = Omit<User, 'id'>
 
 export interface Conference {
   id: number
@@ -13,6 +15,8 @@ export interface Conference {
   editors: string[]
 }
 
-export interface Error {
+export type ConferenceInput = Omit<Conference, 'id'>
+
+export interface ValidationError {
     [ key: string ]: string[]
 }

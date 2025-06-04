@@ -3,21 +3,34 @@ import { onMounted } from 'vue'
 import ConferenceTable from '@/components/ConferenceTable.vue'
 import EditConferenceModal from '@/components/ConferenceModal.vue'
 import { useAdminConferenceStore } from '@/stores/adminConference'
+import { useErrorStore } from '@/stores/error'
+import type { ConferenceInput } from '@/types/types'
 
 const conferenceStore = useAdminConferenceStore()
+const errorStore = useErrorStore()
 
 onMounted(async () => {
   await conferenceStore.fetch()
   await conferenceStore.fetchEditors()
 })
 
-async function saveConference(conference: any) {
+async function saveConference(conference: ConferenceInput) {
   if (conferenceStore.editingConference) {
     await conferenceStore.update(conferenceStore.editingConference.id, conference)
   } else {
     await conferenceStore.create(conference)
   }
-  conferenceStore.toggleModal()
+  
+  if (!errorStore.errors) {
+    conferenceStore.toggleModal()
+  }
+}
+
+function handleToggleModal() {
+    if (errorStore.errors) {
+        errorStore.clearErrors()
+    }
+    conferenceStore.toggleModal()
 }
 </script>
 
@@ -26,7 +39,7 @@ async function saveConference(conference: any) {
     <div class="flex justify-between items-center">
       <h1 class="text-xl font-semibold text-[#566d8b]">Conference Management</h1>
       <button
-        @click="conferenceStore.toggleModal()"
+        @click="handleToggleModal"
         class="bg-[#fb6c11] text-white px-4 py-2 rounded-lg hover:bg-[#566d8b] transition-colors"
       >
         Add Conference
@@ -48,6 +61,7 @@ async function saveConference(conference: any) {
     :conference="conferenceStore.editingConference"
     :availableEditors="conferenceStore.availableEditors"
     :loading="conferenceStore.loading"
+    :errors="errorStore.errors"
     @close="conferenceStore.toggleModal"
     @save="saveConference"
   />
