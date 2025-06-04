@@ -1,14 +1,11 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import axiosInstance from "@/axios";
 import { reactive, ref } from "vue";
 import type { User } from "@/types/types";
-import { useErrorStore } from "./error";
 
 export const useAdminUserStore = defineStore("adminUser", () => {
-  const errorStore = useErrorStore();
-
-  const users = ref([] as User[]);
-  const roles = ref([] as string[]);
+  const users = ref<User[]>([]);
+  const roles = ref<string[]>([]);
   const userModal = ref(false);
   const fetching = ref(false);
   const loadingUser = ref(false);
@@ -16,47 +13,54 @@ export const useAdminUserStore = defineStore("adminUser", () => {
   const editingUser = ref<User | null>(null);
 
   async function fetch() {
-    errorStore.withErrorHandling(async () => {
-      fetching.value = true;
-      const res = await axios.get("api/users");
-      users.value = res.data;
-    });
-    fetching.value = false;
+    fetching.value = true;
+    try {
+      const { data } = await axiosInstance.get("/users");
+      users.value = data;
+    } catch (e) {
+    } finally {
+      fetching.value = false;
+    }
   }
 
   async function fetchRoles() {
-    return errorStore.withErrorHandling(async () => {
-      const res = await axios.get("api/roles");
-      roles.value = res.data;
-    });
+    try {
+      const { data } = await axiosInstance.get("/roles");
+      roles.value = data;
+    } catch (e) {
+    } finally {
+      loadingUser.value = false;
+    }
   }
 
-  async function create(user: any) {
-    await errorStore.withErrorHandling(async () => {
-      loadingUser.value = true;
-      const res = await axios.post("api/users", user);
-      users.value.push(res.data);
-    });
-    loadingUser.value = false;
+  async function create() {
+    loadingUser.value = true;
+    try {
+      await axiosInstance.post("/users", user);
+    } catch (e) {
+    } finally {
+      loadingUser.value = false;
+    }
   }
 
-  async function update(id: number, user: any) {
-    await errorStore.withErrorHandling(async () => {
-      loadingUser.value = true;
-      const res = await axios.put(`api/users/${id}`, user);
-      const index = users.value.findIndex(u => u.id === id);
-      if (index !== -1) {
-        users.value[index] = res.data;
-      }
-    });
-    loadingUser.value = false;
+  async function update() {
+    loadingUser.value = true;
+    try {
+      await axiosInstance.put(`/users/${userId.value}`, user);
+    } catch (e) {
+    } finally {
+      loadingUser.value = false;
+    }
   }
 
   async function destroy(id: number) {
-    return errorStore.withErrorHandling(async () => {
-      axios.delete(`api/users/${id}`);
-      users.value = users.value.filter(u => u.id !== id);
-    });
+    loadingUser.value = true;
+    try {
+      await axiosInstance.delete(`/users/${id}`);
+    } catch (e) {
+    } finally {
+      loadingUser.value = false;
+    }
   }
 
   function toggleModal(user: User | null = null) {
