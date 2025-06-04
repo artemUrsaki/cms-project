@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import axiosInstance from "@/axios";
 import { useRoute, useRouter } from "vue-router";
 import { ref, computed } from "vue";
-import type { User } from "@/types/types";
+import type { User, UserInput } from "@/types/types";
 
 export const useUserStore = defineStore("user", () => {
   const router = useRouter();
@@ -14,15 +14,8 @@ export const useUserStore = defineStore("user", () => {
   const loading = ref(false);
   const loggingUser = ref(false);
 
-  // --- New State for Profile Details Form (moved from ProfileSettings.vue) ---
-  // These will be bound to the input fields in the component
-  const editedFirstName = ref(user.value?.first_name || '');
-  const editedLastName = ref(user.value?.last_name || '');
-  const editedEmail = ref(user.value?.email || '');
-
   // State for feedback messages for profile details
   const profileMessage = ref('');
-  const profileError = ref('');
 
   // --- New State for Password Change Form (moved from ProfileSettings.vue) ---
   const currentPassword = ref('');
@@ -42,12 +35,6 @@ export const useUserStore = defineStore("user", () => {
       const res = await axiosInstance.get("/user");
       user.value = res.data;
       isLoggedIn.value = true;
-      
-      // Initialize edited fields when user data is loaded
-      editedFirstName.value = user.value?.first_name || '';
-      editedLastName.value = user.value?.last_name || '';
-      editedEmail.value = user.value?.email || '';
-
     } catch (error) {}
   }
 
@@ -71,10 +58,6 @@ export const useUserStore = defineStore("user", () => {
 
     user.value = res.data;
     isLoggedIn.value = true;
-    // Initialize edited fields on login
-    editedFirstName.value = user.value?.first_name || '';
-    editedLastName.value = user.value?.last_name || '';
-    editedEmail.value = user.value?.email || '';
 
     router.push((route.query?.redirect as string) ?? { name: "profile-details" });
     loggingUser.value = false;
@@ -82,17 +65,11 @@ export const useUserStore = defineStore("user", () => {
 
   async function logout() {
     try {
-      await axios.post("logout");
-
-      // Clear edited fields on logout
-      editedFirstName.value = '';
-      editedLastName.value = '';
-      editedEmail.value = '';
+      await axiosInstance.post("logout");
       currentPassword.value = '';
       newPassword.value = '';
       confirmNewPassword.value = '';
       profileMessage.value = '';
-      profileError.value = '';
       passwordMessage.value = '';
       passwordError.value = '';
 
@@ -153,33 +130,23 @@ export const useUserStore = defineStore("user", () => {
   }
 
   // --- New Actions for Profile Details ---
-  async function saveUserDetailsChanges() {
-    profileMessage.value = '';
-    profileError.value = '';
-
+  async function updateUserDetails(userData: { first_name: string; last_name: string; email: string }) {
+    loading.value = true;
     try {
-      await axios.put('/user/profile-information', {
-        first_name: editedFirstName.value,
-        last_name: editedLastName.value,
-        email: editedEmail.value,
+      await axiosInstance.put('/user/profile-information', {
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        email: userData.email,
       });
 
-      profileMessage.value = 'Profile details updated successfully!';
-
-      // Update the user data directly in the store after successful update
       if (user.value) {
-        user.value.first_name = editedFirstName.value;
-        user.value.last_name = editedLastName.value;
-        user.value.email = editedEmail.value;
+        user.value.first_name = userData.first_name;
+        user.value.last_name = userData.last_name;
+        user.value.email = userData.email;
       }
-
-    } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response && error.response.data && error.response.data.errors) {
-        profileError.value = Object.values(error.response.data.errors).flat().join('\n');
-      } else {
-        profileError.value = 'An unexpected error occurred while updating profile.';
-      }
-      console.error('Error saving profile details:', error);
+    } catch (error) {}
+    finally {
+      loading.value = false;
     }
   };
 
@@ -195,7 +162,7 @@ export const useUserStore = defineStore("user", () => {
     }
 
     try {
-      await axios.put('/user/password', {
+      await axiosInstance.put('/user/password', {
         current_password: currentPassword.value,
         password: newPassword.value,
         password_confirmation: confirmNewPassword.value,
@@ -209,7 +176,7 @@ export const useUserStore = defineStore("user", () => {
       confirmNewPassword.value = '';
 
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response && error.response.data && error.response.data.errors) {
+      if (error.response && error.response.data && error.response.data.errors) {
         // Fortify's validation errors for passwords are typically under the 'updatePassword' bag
         passwordError.value = Object.values(error.response.data.errors).flat().join('\n');
       } else {
@@ -232,13 +199,8 @@ export const useUserStore = defineStore("user", () => {
     request_password,
     reset_password,
 
-    // New state and actions for profile details
-    editedFirstName,
-    editedLastName,
-    editedEmail,
     profileMessage,
-    profileError,
-    saveUserDetailsChanges,
+    updateUserDetails,
 
     // New state and actions for password changes
     currentPassword,

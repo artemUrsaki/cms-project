@@ -16,9 +16,7 @@ import { RouterView } from 'vue-router';
         <div class="flex-1 bg-white">
             <div class="p-6">
                 <RouterView v-slot="{ Component}">
-                    <KeepAlive>
-                        <component :is="Component"/>
-                    </KeepAlive>
+                    <component :is="Component"/>
                 </RouterView>
             </div>
         </div>
