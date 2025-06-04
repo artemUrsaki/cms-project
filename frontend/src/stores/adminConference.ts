@@ -1,93 +1,90 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import axios from "axios";
+import { defineStore } from "pinia"
+import { ref } from "vue"
+import axiosInstance from "@/axios"
+import type { Conference } from "@/types/types"
+
+interface ConferenceInput {
+  name: string
+  year: number
+  editors: string[]
+}
 
 export const useAdminConferenceStore = defineStore("adminConference", () => {
-  const conferences = ref<any[]>([]);
+  const conferences = ref<Conference[]>([])
   const availableEditors = ref<string[]>([])
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-  const conferenceModal = ref(false);
-  const editingConference = ref<any | null>(null);
+  const fetching = ref(false)
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+  const conferenceModal = ref(false)
+  const editingConference = ref<Conference | null>(null)
 
   async function fetch() {
-    loading.value = true;
+    fetching.value = true
     try {
-      const res = await axios.get("/api/conferences");
-      conferences.value = res.data.map((conf: any) => ({
-        ...conf,
-        editors: conf.users.map((user: any) => user.email),
-      }));
+      const res = await axiosInstance.get("/conferences")
+      conferences.value = res.data
     } catch (err: any) {
-      error.value = err.message;
+      error.value = err.message
     } finally {
-      loading.value = false;
+      fetching.value = false
     }
   }
 
   async function fetchEditors() {
     try {
-      const res = await axios.get("/api/editors");
-      availableEditors.value = res.data.map((user: any) => user.email);
+      const res = await axiosInstance.get("/conference-editors")
+      availableEditors.value = res.data
     } catch (err: any) {
-      error.value = err.message;
+      error.value = err.message
     }
   }
 
-  async function create(data: any) {
-    loading.value = true;
+  async function create(data: ConferenceInput) {
+    loading.value = true
     try {
-      const res = await axios.post("/api/conferences", data);
-      conferences.value.push({
-        ...res.data,
-        editors: res.data.users.map((user: any) => user.email),
-      });
+      const res = await axiosInstance.post("/conferences", data)
+      conferences.value.push(res.data)
     } catch (err: any) {
-      error.value = err.message;
+      error.value = err.message
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
-  async function update(id: number, data: any) {
-    loading.value = true;
+  async function update(id: number, data: ConferenceInput) {
+    loading.value = true
     try {
-      const res = await axios.put(`/api/conferences/${id}`, data);
-      const index = conferences.value.findIndex((c) => c.id === id);
+      const res = await axiosInstance.put(`/conferences/${id}`, data)
+      const index = conferences.value.findIndex((c) => c.id === id)
       if (index !== -1) {
-        conferences.value[index] = {
-          ...res.data,
-          editors: res.data.users.map((user: any) => user.email),
-        };
+        conferences.value[index] = res.data
       }
     } catch (err: any) {
-      error.value = err.message;
+      error.value = err.message
     } finally {
-      loading.value = false;
+      loading.value = false
     }
   }
 
   async function remove(id: number) {
-    loading.value = true;
     try {
-      await axios.delete(`/api/conferences/${id}`);
-      conferences.value = conferences.value.filter((c) => c.id !== id);
+      axiosInstance.delete(`/conferences/${id}`)
+      conferences.value = conferences.value.filter((c) => c.id !== id)
     } catch (err: any) {
-      error.value = err.message;
-    } finally {
-      loading.value = false;
+      error.value = err.message
     }
   }
 
-  function toggleModal(conference: any | null = null) {
-    conferenceModal.value = !conferenceModal.value;
-    editingConference.value = conference;
+  function toggleModal(conference: Conference | null = null) {
+    editingConference.value = conference
+    conferenceModal.value = !conferenceModal.value
   }
 
   return {
     conferences,
     availableEditors,
     loading,
+    fetching,
     error,
     conferenceModal,
     editingConference,
@@ -97,5 +94,5 @@ export const useAdminConferenceStore = defineStore("adminConference", () => {
     update,
     remove,
     toggleModal,
-  };
-});
+  }
+})

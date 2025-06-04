@@ -102,7 +102,7 @@ class AdminUserController extends Controller
      */
     public function roles() {
         return Cache::rememberForever('roles', function () {
-            return Role::pluck('name')->all();
+            return Role::pluck('name');
         });
     }
 }

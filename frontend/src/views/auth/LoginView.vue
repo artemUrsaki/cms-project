@@ -66,7 +66,7 @@ const form = reactive({
       </div>
       
       <form @submit.prevent="() => { userStore.login(form) }" class="space-y-2">
-        <p v-if="errorStore.errors.email" class="text-red-500">{{ errorStore.errors.email[0] }}</p>
+        <p v-if="errorStore.errors?.email" class="text-red-500">{{ errorStore.errors.email[0] }}</p>
         <input
           v-model="form.email"
           name="email"
@@ -75,7 +75,7 @@ const form = reactive({
           class="w-full px-3 py-1.5 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
         >
       
-        <p v-if="errorStore.errors.password" class="text-red-500">{{ errorStore.errors.password[0] }}</p>
+        <p v-if="errorStore.errors?.password" class="text-red-500">{{ errorStore.errors.password[0] }}</p>
         <input
           v-model="form.password"
           name="password"

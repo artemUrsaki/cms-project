@@ -20,7 +20,7 @@ async function createUser() {
         await adminUserStore.create()
     }
 
-    if (!errorStore.isError) {
+    if (!errorStore.errors) {
         adminUserStore.toggleModal()
         adminUserStore.fetch()
     }
@@ -35,26 +35,26 @@ async function createUser() {
 
             <form @submit.prevent="createUser">
                 <h3 class="text-lg font-semibold mb-4 text-center text-[#566d8b]">User</h3>
-                <p v-if="errorStore.errors.first_name" class="text-red-500">{{ errorStore.errors.first_name[0] }}</p>
+                <p v-if="errorStore.errors?.first_name" class="text-red-500">{{ errorStore.errors?.first_name[0] }}</p>
                 <input
                     ref="focus-input"
                     v-model="adminUserStore.user.first_name"
                     placeholder="First Name"
                     class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
                 />
-                <p v-if="errorStore.errors.last_name" class="text-red-500 ">{{ errorStore.errors.last_name[0] }}</p>
+                <p v-if="errorStore.errors?.last_name" class="text-red-500 ">{{ errorStore.errors?.last_name[0] }}</p>
                 <input
                     v-model="adminUserStore.user.last_name"
                     placeholder="Last Name"
                     class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
                 />
-                <p v-if="errorStore.errors.email" class="text-red-500">{{ errorStore.errors.email[0] }}</p>
+                <p v-if="errorStore.errors?.email" class="text-red-500">{{ errorStore.errors?.email[0] }}</p>
                 <input
                     v-model="adminUserStore.user.email"
                     placeholder="User Email"
                     class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
                 />
-                <p v-if="errorStore.errors.role" class="text-red-500">{{ errorStore.errors.role[0] }}</p>
+                <p v-if="errorStore.errors?.role" class="text-red-500">{{ errorStore.errors?.role[0] }}</p>
                 <select v-model="adminUserStore.user.role" placeholder="Select Role" class="mb-4 w-full px-2 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]">
                     <option v-for="(role, id) in adminUserStore.roles" :key='id' :value="role">
                         {{ role.charAt(0).toUpperCase() + role.slice(1) }}

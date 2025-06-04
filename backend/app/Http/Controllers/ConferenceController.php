@@ -9,23 +9,19 @@ use Illuminate\Support\Facades\Cache;
 
 class ConferenceController extends Controller
 {
-    /**
-     * Zoznam konferencií aj s editormi.
-     */
     public function index()
     {
-        return Conference::with('users')->get(); // <-- Toto je bod č. 3
+        return Cache::rememberForever('conferences', function () {
+            return Conference::all()->load('users')->toResourceCollection();
+        });
     }
 
-    /**
-     * Uloženie novej konferencie + napojenie editorov.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
             'year'    => 'required|integer',
-            'editors' => 'array', // e-maily editorov
+            'editors' => 'nullable|array',
         ]);
 
         $conference = Conference::create([
@@ -33,25 +29,21 @@ class ConferenceController extends Controller
             'year' => $validated['year'],
         ]);
 
-        if (!empty($validated['editors'])) {
-            $userIds = User::whereIn('email', $validated['editors'])->pluck('id');
+        $emails = collect($validated['editors'] ?? [])->filter();
+
+        if ($emails->isNotEmpty()) {
+            $userIds = User::whereIn('email', $emails)->pluck('id');
             $conference->users()->sync($userIds);
         }
 
-        return $conference->load('users');
+        return $conference->load('users')->toResource();
     }
 
-    /**
-     * Zobrazenie konkrétnej konferencie.
-     */
     public function show(string $id)
     {
-        return Conference::with('users')->findOrFail($id);
+        return Conference::with('users')->findOrFail($id)->toResource();
     }
 
-    /**
-     * Aktualizácia konferencie + editorov.
-     */
     public function update(Request $request, string $id)
     {
         $conference = Conference::findOrFail($id);
@@ -59,7 +51,7 @@ class ConferenceController extends Controller
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
             'year'    => 'required|integer',
-            'editors' => 'array',
+            'editors' => 'nullable|array',
         ]);
 
         $conference->update([
@@ -67,32 +59,28 @@ class ConferenceController extends Controller
             'year' => $validated['year'],
         ]);
 
-        if (!empty($validated['editors'])) {
-            $userIds = User::whereIn('email', $validated['editors'])->pluck('id');
+        $emails = collect($validated['editors'] ?? [])->filter();
+
+        if ($emails->isNotEmpty()) {
+            $userIds = User::whereIn('email', $emails)->pluck('id');
             $conference->users()->sync($userIds);
+        } else {
+            $conference->users()->detach();
         }
 
-        return $conference->load('users');
+        return $conference->load('users')->toResource();
     }
 
-    /**
-     * Zmazanie konferencie.
-     */
     public function destroy(string $id)
     {
         $conference = Conference::findOrFail($id);
 
-        // 🧹 Zmaže všetky prepojenia s používateľmi z pivot tabuľky
         $conference->users()->detach();
-
         $conference->delete();
 
         return response()->json(['message' => 'Conference deleted']);
     }
 
-    /**
-     * Return list of all user emails for editor selection.
-     */
     public function editors()
     {
         return Cache::rememberForever('editors', function () {
