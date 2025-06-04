@@ -10,14 +10,7 @@ export const useAdminUserStore = defineStore("adminUser", () => {
   const fetching = ref(false);
   const loadingUser = ref(false);
 
-  const user = reactive({
-    first_name: "",
-    last_name: "",
-    email: "",
-    role: "editor",
-  });
-
-  const userId = ref(-1);
+  const editingUser = ref<User | null>(null);
 
   async function fetch() {
     fetching.value = true;
@@ -70,7 +63,8 @@ export const useAdminUserStore = defineStore("adminUser", () => {
     }
   }
 
-  function toggleModal() {
+  function toggleModal(user: User | null = null) {
+    editingUser.value = user;
     userModal.value = !userModal.value;
   }
 
@@ -80,8 +74,7 @@ export const useAdminUserStore = defineStore("adminUser", () => {
     userModal,
     fetching,
     loadingUser,
-    user,
-    userId,
+    editingUser,
     fetch,
     fetchRoles,
     create,

@@ -55,6 +55,8 @@ class AdminUserController extends Controller
             $user->last_name,
             $tempPassword
         ));
+
+        return $user->toResource();
     }
 
     /**
@@ -87,6 +89,8 @@ class AdminUserController extends Controller
         ]);
         $user->role()->associate($role);
         $user->save();
+
+        return $user->toResource();
     }
 
     /**

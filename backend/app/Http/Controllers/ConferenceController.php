@@ -74,8 +74,6 @@ class ConferenceController extends Controller
     public function destroy(string $id)
     {
         $conference = Conference::findOrFail($id);
-
-        $conference->users()->detach();
         $conference->delete();
 
         return response()->json(['message' => 'Conference deleted']);
