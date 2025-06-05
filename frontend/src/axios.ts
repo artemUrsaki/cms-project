@@ -22,12 +22,16 @@ async error => {
     const userStore = useUserStore()
     const errorStore = useErrorStore()
     switch (error.response.status) {
+        case 419:
+            console.log('Session expired, logging out user')
         case 401:
             userStore.cleanAuth()
             break;
         case 422:
             errorStore.setValidationErrors(error);
             break;
+        default:
+            console.error('An unexpected error occurred:', error);
     }
     return Promise.reject(error);
 });
