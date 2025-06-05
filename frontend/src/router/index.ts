@@ -32,6 +32,11 @@ const router = createRouter({
       name: "password-reset",
       component: () => import("@/views/profile/PassResetView.vue"),
     },
+    {
+      path: "/subpages/:id",
+      name: "subpage",
+      component: () => import("@/views/SubpageView.vue"),
+    },
     ...AdminRoutes,
     {
       path: "/:pathMatch(.*)*",

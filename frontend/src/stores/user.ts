@@ -5,42 +5,46 @@ import { ref, computed } from "vue";
 import type { User } from "@/types/types";
 import { useErrorStore } from "./error";
 
+axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.withCredentials = true;
+
 export const useUserStore = defineStore("user", () => {
   const router = useRouter();
   const route = useRoute();
   const errorStore = useErrorStore();
 
   const user = ref<null | User>(null);
-
   const isLoggedIn = ref(false);
   const loading = ref(false);
   const loggingUser = ref(false);
 
-  // Computed
   const isAdmin = computed(() => user.value?.role === "admin");
 
-  // Actions
+  // Call this on app startup
   async function initAuth() {
     try {
+      await axios.get("/sanctum/csrf-cookie");
       const { data } = await axios.get("/api/user");
-
       isLoggedIn.value = true;
       user.value = data;
     } catch (error) {
-      console.log(error);
+      console.error("initAuth failed:", error);
     }
   }
 
   async function checkAuth() {
     try {
       loading.value = true;
-      await axios.get("/api/user");
+      await axios.get("/sanctum/csrf-cookie");
+      const { data } = await axios.get("/api/user");
+      user.value = data;
+      isLoggedIn.value = true;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         isLoggedIn.value = false;
         user.value = null;
       } else {
-        console.log(error);
+        console.error("checkAuth failed:", error);
       }
     } finally {
       loading.value = false;
@@ -50,8 +54,8 @@ export const useUserStore = defineStore("user", () => {
   async function login(userObj: { email: string; password: string }) {
     await errorStore.withErrorHandling(async () => {
       loggingUser.value = true;
-      await axios.get("sanctum/csrf-cookie");
-      const { data } = await axios.post("login", userObj);
+      await axios.get("/sanctum/csrf-cookie");
+      const { data } = await axios.post("/login", userObj);
 
       user.value = data;
       isLoggedIn.value = true;
@@ -63,10 +67,9 @@ export const useUserStore = defineStore("user", () => {
 
   async function logout() {
     try {
-      await axios.post("logout");
+      await axios.post("/logout");
       isLoggedIn.value = false;
       user.value = null;
-
       router.push({ name: "login" });
     } catch (error) {
       console.error("Logout failed:", error);
@@ -75,45 +78,47 @@ export const useUserStore = defineStore("user", () => {
 
   async function request_password(email: string) {
     try {
-      console.log("Resetting password...");
-      console.log("User email:", user.value?.email);
-      await axios.post("forgot-password",
-        {
-          email: email
-        },
+      console.log("Requesting password reset for:", email);
+      await axios.post(
+        "/forgot-password",
+        { email },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
         }
       );
     } catch (error) {
-      console.error("Request password failed:", error);
+      console.error("Password reset request failed:", error);
     }
   }
 
-  async function reset_password(token: string, email: string, password: string, conf_password: string) {
+  async function reset_password(
+    token: string,
+    email: string,
+    password: string,
+    conf_password: string
+  ) {
     try {
-      console.log(password);
-      console.log(conf_password);
-      console.log("Resetting password with token:", token);
-      await axios.post("reset-password",
+      console.log("Resetting password...");
+      await axios.post(
+        "/reset-password",
         {
-          token: token,
-          email: email,
-          password: password,
-          password_confirmation: conf_password
+          token,
+          email,
+          password,
+          password_confirmation: conf_password,
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
         }
       );
     } catch (error) {
-      console.error("Reset password failed:", error);
+      console.error("Password reset failed:", error);
     }
   }
 

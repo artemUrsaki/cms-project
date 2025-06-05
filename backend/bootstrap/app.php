@@ -5,6 +5,8 @@ use App\Http\Middleware\LogRequest;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Fruitcake\Cors\HandleCors; // <- only if you installed fruitcake/laravel-cors
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,9 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->statefulApi()
-            ->alias(['admin' => EnsureUserIsAdmin::class]);
+        ->withMiddleware(function (Middleware $middleware) {
+            $middleware->statefulApi([
+                \Illuminate\Http\Middleware\HandleCors::class,
+                \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+
+        $middleware->alias([
+            'admin' => EnsureUserIsAdmin::class
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
