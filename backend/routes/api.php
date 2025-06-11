@@ -16,3 +16,14 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/conference-editors', [ConferenceController::class, 'editors']);   
     Route::apiResource('conferences', ConferenceController::class);
 });
+
+Route::get('/password-reset', function (Request $request) {
+    $token = $request->query('token');
+    $email = $request->query('email');
+
+    $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173') . '/password-reset';
+
+    $redirectUrl = $frontendUrl . '?token=' . urlencode($token) . '&email=' . urlencode($email);
+
+    return redirect($redirectUrl);
+})->name('password.reset');

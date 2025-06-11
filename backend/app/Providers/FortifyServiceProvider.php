@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Contracts\ProfileInformationUpdatedResponse;
 use Laravel\Fortify\Fortify;
 use App\Models\User;
 use Laravel\Fortify\Contracts\LoginResponse;
@@ -24,11 +25,18 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->instance(LoginResponse::class, new class implements LoginResponse {
-        public function toResponse($request)
-        {
-            return $request->user()->toResource();
-        }
-    });
+            public function toResponse($request)
+            {
+                return $request->user()->toResource();
+            }
+        });
+
+        $this->app->instance(ProfileInformationUpdatedResponse::class, new class implements ProfileInformationUpdatedResponse {
+            public function toResponse($request)
+            {
+                return $request->user()->toResource();
+            }
+        });
     }
 
     /**

@@ -35,12 +35,12 @@ function handleToggleModal() {
 </script>
 
 <template>
-  <div class="border-b border-[#566d8b]/20 p-4 bg-white">
+  <div class="border-b border-primary/20 p-4 bg-white">
     <div class="flex justify-between items-center">
-      <h1 class="text-xl font-semibold text-[#566d8b]">Conference Management</h1>
+      <h1 class="text-xl font-semibold text-primary">Conference Management</h1>
       <button
         @click="handleToggleModal"
-        class="bg-[#fb6c11] text-white px-4 py-2 rounded-lg hover:bg-[#566d8b] transition-colors"
+        class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-primary transition-colors"
       >
         Add Conference
       </button>

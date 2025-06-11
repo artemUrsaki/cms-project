@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-class AdminUserController extends Controller
+class AdminUserController
 {
     /**
      * Display a listing of the resource.

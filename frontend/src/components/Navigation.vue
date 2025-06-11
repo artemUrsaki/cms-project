@@ -8,14 +8,14 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="bg-[#566d8b]/20 w-64 p-4 border-r border-[#566d8b]/20">
-      <h2 class="text-lg font-semibold mb-6 text-[#566d8b]">{{ title }}</h2>
+  <div class="bg-primary/20 w-64 p-4 border-r border-primary/20">
+      <h2 class="text-lg font-semibold mb-6 text-primary">{{ title }}</h2>
       <nav class="space-y-2">
           <NavLink
             v-for="link in props.navLinks"
             :key="link.routeName"
             :routeName="link.routeName"
-            class="hover:text-[#fb6c11] text-[#566d8b]"
+            class="hover:text-secondary text-primary"
           >
             {{ link.label }}
           </NavLink>

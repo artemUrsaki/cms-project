@@ -30,35 +30,35 @@ onMounted(() => {
             <LoadingModal class="rounded-lg" v-if="loadingUser" />
 
             <form @submit.prevent="$emit('save', modalForm)" class="space-y-4">
-                <h3 class="text-lg font-semibold mb-4 text-center text-[#566d8b]">User</h3>
+                <h3 class="text-lg font-semibold mb-4 text-center text-primary">User</h3>
                 <p v-if="errors?.first_name" class="mb-1 text-red-500">{{ errors?.first_name[0] }}</p>
                 <input
                     ref="focus-input"
                     v-model="modalForm.first_name"
                     placeholder="First Name"
-                    class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
+                    class="w-full mb-4 px-4 py-2 border border-primary rounded-lg  focus:border-secondary"
                 />
                 <p v-if="errors?.last_name" class="mb-1 text-red-500 ">{{ errors?.last_name[0] }}</p>
                 <input
                     v-model="modalForm.last_name"
                     placeholder="Last Name"
-                    class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
+                    class="w-full mb-4 px-4 py-2 border border-primary rounded-lg  focus:border-secondary"
                 />
                 <p v-if="errors?.email" class="mb-1 text-red-500">{{ errors?.email[0] }}</p>
                 <input
                     v-model="modalForm.email"
                     placeholder="User Email"
-                    class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
+                    class="w-full mb-4 px-4 py-2 border border-primary rounded-lg  focus:border-secondary"
                 />
                 <p v-if="errors?.role" class="mb-1 text-red-500">{{ errors?.role[0] }}</p>
-                <select v-model="modalForm.role" placeholder="Select Role" class="mb-4 w-full px-2 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]">
+                <select v-model="modalForm.role" placeholder="Select Role" class="mb-4 w-full px-2 py-2 border border-primary rounded-lg  focus:border-secondary">
                     <option v-for="(role, id) in roles" :key='id' :value="role">
                         {{ role.charAt(0).toUpperCase() + role.slice(1) }}
                     </option>
                 </select>
                 <div class="flex justify-end space-x-3">
-                    <button type="button" @click="$emit('close')" class="px-4 py-2 text-[#566d8b] hover:text-[#fb6c11]">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-[#fb6c11] text-white rounded-lg hover:bg-[#566d8b] hover:text-white transition-colors">
+                    <button type="button" @click="$emit('close')" class="px-4 py-2 text-primary hover:text-secondary">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-primary hover:text-white transition-colors">
                         {{ user ? 'Save' : 'Add'}}
                     </button>
                 </div>

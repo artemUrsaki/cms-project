@@ -2,15 +2,29 @@
 import LoadingModal from './components/LoadingModal.vue';
 import { RouterLink, RouterView } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 
 const userStore = useUserStore();
-const init = ref(true);
+const init = ref(false);
 
 onBeforeMount(async () => {
-    await userStore.initAuth();
-    init.value = false;
-});
+    if (!userStore.isLoggedIn) {
+        init.value = true
+        await userStore.initAuth()
+        init.value = false
+    }
+})
+
+watch(
+    () => userStore.loading, 
+    () => {
+        if (userStore.loading) {
+            document.documentElement.style.overflow = 'hidden'
+        } else {
+            document.documentElement.style.overflow = 'auto'
+        }
+    }
+)
 </script>
 
 <template>
@@ -22,7 +36,7 @@ onBeforeMount(async () => {
     <LoadingModal v-else-if="userStore.loading" />
 
     <div v-if="!init" class="flex flex-col min-h-screen bg-gray-100">
-        <header class="fixed w-full top-0 left-0 bg-white shadow-sm z-50">
+        <header class="fixed w-full top-0 left-0 py-3 bg-white shadow-sm z-50">
             <div class="w-full px-4 flex justify-between items-center">
                 <div class="logo">
                     <RouterLink to="/">
@@ -55,7 +69,7 @@ onBeforeMount(async () => {
             <RouterView />
         </main>
 
-        <footer class="bg-gray-800 text-white py-6">
+        <footer class="text-xs sm:text-sm text-center bg-gray-800 text-white py-6 px-4">
             <p>&copy; 2025 Miloš Chmelko, Andrej Mika, Patrik Rajnoha, Artem Ursaki.</p>
         </footer>
     </div>

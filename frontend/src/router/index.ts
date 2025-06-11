@@ -41,12 +41,12 @@ const router = createRouter({
     {
       path: "/password-request",
       name: "password-request",
-      component: () => import("@/views/profile/PassRequestView.vue"),
+      component: () => import("@/views/profile/PasswordRequestView.vue"),
     },
     {
       path: "/password-reset",
       name: "password-reset",
-      component: () => import("@/views/profile/PassResetView.vue"),
+      component: () => import("@/views/profile/PasswordResetView.vue"),
     },
     ...AdminRoutes,
     {
@@ -56,22 +56,18 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach(async (to, from) => {
+router.beforeEach((to, from) => {
   const userStore = useUserStore();
 
-  if (to.meta.requiresAuth) {
-    await userStore.checkAuth();
-
-    if (!userStore.isLoggedIn) {
-      return {
-        name: "login",
-        query: { redirect: to.fullPath },
-      };
-    }
-  }
-
-  if (to.meta.isAdmin && !userStore.isAdmin) {
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    return {
+      name: "login",
+      query: { redirect: to.fullPath },
+    };
+  } else if (to.meta.requiresAdmin && !userStore.isAdmin) {
     return { name: "home" };
+  } else if (to.name === "login" && userStore.isLoggedIn) {
+    return { name: "profile.details" };
   }
 });
 

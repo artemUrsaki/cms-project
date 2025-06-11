@@ -4,7 +4,6 @@ import UserModal from '@/components/UserModal.vue'
 import { onBeforeMount } from 'vue'
 import { useAdminUserStore } from '@/stores/adminUser'
 import { useErrorStore } from '@/stores/error'
-import type { UserInput } from '@/types/types'
 
 const adminUserStore = useAdminUserStore()
 const errorStore = useErrorStore()
@@ -14,7 +13,7 @@ onBeforeMount(() => {
     adminUserStore.fetchRoles()
 })
 
-async function handleSave(user: UserInput) {
+async function handleSave(user: { first_name: string; last_name: string; email: string; role: string }) {
     if (adminUserStore.editingUser) {
         await adminUserStore.update(adminUserStore.editingUser.id, user)
     } else {
@@ -35,10 +34,10 @@ function handleToggleModal() {
 </script>
 
 <template>
-    <div class="border-b border-[#566d8b]/20 p-4 bg-white">
+    <div class="border-b border-primary/20 p-4 bg-white">
         <div class="flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-[#566d8b]">User Management</h1>
-            <button @click="handleToggleModal" class="bg-[#fb6c11] text-white px-4 py-2 rounded-lg hover:bg-[#566d8b] transition-colors">
+            <h1 class="text-xl font-semibold text-primary">User Management</h1>
+            <button @click="handleToggleModal" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-primary transition-colors">
                 Add User
             </button>
         </div>

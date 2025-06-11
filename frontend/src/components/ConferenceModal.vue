@@ -32,7 +32,7 @@ onMounted(() => {
       <LoadingModal class="rounded-lg" v-if="loading" />
 
       <form @submit.prevent="$emit('save', modalForm)" class="space-y-4">
-        <h3 class="text-lg font-semibold mb-4 text-center text-[#566d8b]">
+        <h3 class="text-lg font-semibold mb-4 text-center text-primary">
           {{ props.conference ? 'Edit' : 'Add' }} Conference
         </h3>
         <p v-if="errors?.name" class="mb-1 text-red-500">{{ errors?.name[0] }}</p>
@@ -40,14 +40,14 @@ onMounted(() => {
           ref="focus-input"
           v-model="modalForm.name"
           placeholder="Conference Name"
-          class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
+          class="w-full mb-4 px-4 py-2 border border-primary rounded-lg  focus:border-secondary"
         />
         <p v-if="errors?.year" class="mb-1 text-red-500">{{ errors?.year[0] }}</p>
         <input
           v-model="modalForm.year"
           type="number"
           placeholder="Year"
-          class="w-full mb-4 px-4 py-2 border border-[#566d8b] rounded-lg focus:ring focus:ring-[#fb6c11] focus:border-[#fb6c11]"
+          class="w-full mb-4 px-4 py-2 border border-primary rounded-lg  focus:border-secondary"
         />
         <p v-if="errors?.editors" class="mb-1 text-red-500">{{ errors?.editors[0] }}</p>
         <Multiselect
@@ -60,8 +60,8 @@ onMounted(() => {
           class="mb-4"
         />
         <div class="flex justify-end space-x-3">
-          <button type="button" @click="$emit('close')" class="px-4 py-2 text-[#566d8b] hover:text-[#fb6c11]">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-[#fb6c11] text-white rounded-lg hover:bg-[#566d8b] hover:text-white transition-colors">
+          <button type="button" @click="$emit('close')" class="px-4 py-2 text-primary hover:text-secondary">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-primary hover:text-white transition-colors">
             {{ conference ? 'Save' : 'Add' }}
           </button>
         </div>
